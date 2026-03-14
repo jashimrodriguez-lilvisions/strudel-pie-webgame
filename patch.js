@@ -7,9 +7,10 @@ const loadSamples = async () => {
 
 let bdMuted = false;
 let melMuted = false;
+let currentCps = 1;
 
 const buildPatch = () => `
-  setcps(0.125)
+  setcps(${currentCps})
   stack(
     sound("808bd:6*16")
       .speed(saw.range(1,5).slow(1))
@@ -50,9 +51,15 @@ const toggleMel = () => {
 
 const stopPattern = () => hush();
 
+const setTempo = (cps) => {
+  currentCps = cps;
+  return playPattern();
+};
+
 window.strudelControls = {
   playPattern,
   stopPattern,
   toggleBd,
   toggleMel,
+  setTempo,
 };

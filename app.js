@@ -2,11 +2,20 @@ const playButton = document.getElementById('play');
 const stopButton = document.getElementById('stop');
 const toggleBdButton = document.getElementById('toggle-bd');
 const toggleMelButton = document.getElementById('toggle-mel');
+const tempoContainer = document.getElementById('tempo');
+const tempoSlider = tempoContainer.querySelector('input');
+const tempoValue = document.getElementById('tempo-value');
 const TOGGLE_BD_INDEX = 2;
 const TOGGLE_MEL_INDEX = 3;
 
 playButton.onclick = () => window.strudelControls.playPattern();
 stopButton.onclick = () => window.strudelControls.stopPattern();
+
+tempoSlider.oninput = () => {
+  const cps = parseFloat(tempoSlider.value);
+  tempoValue.textContent = cps.toFixed(3);
+  window.strudelControls.setTempo(cps);
+};
 const setMutedStyle = (button, muted) => {
   button.classList.toggle('is-muted', muted);
 };
@@ -160,13 +169,72 @@ const animateButtons = () => {
     }
   }
 
+  const tempoRect = tempoContainer.getBoundingClientRect();
+
+  for (let i = 0; i < movingButtons.length; i += 1) {
+    const rect = rects[i];
+    const collisionKey = `tempo-${i}`;
+
+    const isOverlapping =
+      positions[i].x < tempoPos.x + tempoRect.width &&
+      positions[i].x + rect.width > tempoPos.x &&
+      positions[i].y < tempoPos.y + tempoRect.height &&
+      positions[i].y + rect.height > tempoPos.y;
+
+    if (isOverlapping) {
+      if (!activeCollisions.has(collisionKey)) {
+        const dx = (positions[i].x + rect.width / 2) - (tempoPos.x + tempoRect.width / 2);
+        const dy = (positions[i].y + rect.height / 2) - (tempoPos.y + tempoRect.height / 2);
+        if (Math.abs(dx) > Math.abs(dy)) {
+          velocities[i].x *= -1;
+        } else {
+          velocities[i].y *= -1;
+        }
+        activeCollisions.add(collisionKey);
+      }
+    } else {
+      activeCollisions.delete(collisionKey);
+    }
+  }
+
   requestAnimationFrame(animateButtons);
 };
 
+const initTempoPosition = () => {
+  const rect = tempoContainer.getBoundingClientRect();
+  const x = Math.random() * (window.innerWidth - rect.width);
+  const y = Math.random() * (window.innerHeight - rect.height);
+  tempoPos.x = x;
+  tempoPos.y = y;
+  tempoContainer.style.transform = `translate(${x}px, ${y}px)`;
+};
+
+let dragOffset = null;
+let tempoPos = { x: 0, y: 0 };
+
+tempoContainer.addEventListener('mousedown', (e) => {
+  if (e.target === tempoSlider) return;
+  const rect = tempoContainer.getBoundingClientRect();
+  dragOffset = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  e.preventDefault();
+});
+
+window.addEventListener('mousemove', (e) => {
+  if (!dragOffset) return;
+  const rect = tempoContainer.getBoundingClientRect();
+  const x = clamp(e.clientX - dragOffset.x, 0, window.innerWidth - rect.width);
+  const y = clamp(e.clientY - dragOffset.y, 0, window.innerHeight - rect.height);
+  tempoPos = { x, y };
+  tempoContainer.style.transform = `translate(${x}px, ${y}px)`;
+});
+
+window.addEventListener('mouseup', () => { dragOffset = null; });
+
 window.addEventListener('load', () => {
   initializePositions();
+  initTempoPosition();
   animateButtons();
   window.strudelControls.playPattern();
 });
 
-window.addEventListener('resize', initializePositions);
+window.addEventListener('resize', () => { initializePositions(); initTempoPosition(); });

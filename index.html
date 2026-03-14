@@ -35,12 +35,35 @@
     border-color: #bf3a3a;
     color: #ffe6e6;
   }
+
+  .tempo-slider {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border: 1px solid #333b4a;
+    border-radius: 999px;
+    background: #1b2230;
+    color: #e8e8e8;
+    user-select: none;
+  }
+
+  .tempo-slider input[type=range] {
+    width: 80px;
+    accent-color: #e8e8e8;
+  }
 </style>
 
 <button id="play" class="floating-button">play</button>
 <button id="stop" class="floating-button">stop</button>
 <button id="toggle-bd" class="floating-button">mute bd</button>
 <button id="toggle-mel" class="floating-button">mute melodies</button>
+<div id="tempo" class="tempo-slider">
+  <span>tempo</span>
+  <input type="range" min="0.03" max="2" step="0.01" value="0.125">
+  <span id="tempo-value">0.125</span>
+</div>
 
 <script src="patch.js"></script>
 <script src="app.js"></script>
