@@ -9,6 +9,7 @@ let bdMuted = false;
 let melMuted = false;
 
 const buildPatch = () => `
+  setcps(0.5)
   stack(
     sound("808bd:6*16")
       .speed(saw.range(1,5).slow(1))
