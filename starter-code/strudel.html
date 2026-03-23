@@ -1,0 +1,43 @@
+<html>
+<head>
+  <script src="https://unpkg.com/@strudel/web@latest"></script>
+</head>
+<body>
+
+  <button id="play">play</button>
+  <button id="stop">stop</button>
+
+  <script>
+    // 1. initialise the engine (returns a Promise)
+    const ready = initStrudel();
+
+    // 2. load samples once the engine is ready
+    ready.then(() => samples('github:tidalcycles/dirt-samples'));
+
+    // 3. wire up controls
+    document.getElementById("play").onclick = async () => {
+      await ready;
+      evaluate(`
+        samples('github:tidalcycles/dirt-samples')
+        setcps(150/60/4)
+        n(rand.range(0,24).segment("<<1 2 3> 8 10?0.25 12?0.25>"))
+        .scale("C:ritusen")
+        .sometimes(x=>x
+            .scale("F#:lydian")
+            .slow(1,0,8,0.25)
+            .room(0.33)
+            .speed(1)
+            )
+        .pan(rand)
+        .s("future")
+      `);
+    };
+
+    document.getElementById("stop").onclick = async () => {
+      await ready;
+      evaluate(`hush()`);
+    };
+  </script>
+
+</body>
+</html>
