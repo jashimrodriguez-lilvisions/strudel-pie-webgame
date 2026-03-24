@@ -142,10 +142,15 @@
     });
 
     // Patch
-    osc(12, 0.05, 1.5)
-      .kaleid(4)
-      .modulate(noise(3), 0.83)
-      .out();
+    osc(4, 0.05, 0.5)
+noise(2).modulate(osc(2), 0.1)
+.modulate(src(o0),[1].smooth()).blend(o0).modulate(src(o0,-0.5))
+.kaleid(1)
+.color(5, 1, 1).add(osc(6, 0.05, 1.5)
+.rotate(() => time * -0.3)
+.modulate(noise(10), 0.3)
+.luma(0.1, 0.2),0.5)
+.out()
   </script>
 
 </body>
